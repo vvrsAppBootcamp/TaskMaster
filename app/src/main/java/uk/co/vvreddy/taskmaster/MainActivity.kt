@@ -21,6 +21,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -89,6 +93,7 @@ fun TaskList(taskList: List<Task>) {
 
 @Composable
 fun TaskItem(task: Task) {
+    var taskState by remember { mutableStateOf(task.isCompleted) }
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -102,7 +107,12 @@ fun TaskItem(task: Task) {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(16.dp)
         )
-        Switch(checked = task.isCompleted, onCheckedChange = {task.isCompleted = !task.isCompleted})
+        Switch(
+            checked = taskState,
+            onCheckedChange = {
+                taskState = it
+                task.isCompleted = it
+            }
+        )
     }
-
 }
