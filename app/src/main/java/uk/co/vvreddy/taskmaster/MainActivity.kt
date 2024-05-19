@@ -3,20 +3,26 @@ package uk.co.vvreddy.taskmaster
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Add
+import androidx.compose.material.icons.twotone.Delete
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -70,7 +76,7 @@ fun AppScaffold() {
         Task(id = 2, title = "Walk the dog", isCompleted = true),
         Task(id = 3, title = "Read a book", isCompleted = false)
     )
-    var sampleTasks = remember {
+    val sampleTasks = remember {
         mutableStateListOf<Task>()
     }
 
@@ -101,23 +107,28 @@ fun AppScaffold() {
                 )
             }
 
-            TaskList(taskList = sampleTasks)
+            TaskList(taskList = sampleTasks, onDelete = { task -> sampleTasks.remove(task) })
         }
     }
 }
 
 
 @Composable
-fun TaskList(taskList: List<Task>) {
-    LazyColumn {
+fun TaskList(taskList: List<Task>, onDelete: (Task) -> Unit) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+    ) {
         items(taskList){
-            task -> TaskItem(task)
+            task -> TaskItem(task, onDelete = onDelete)
+            if(task != taskList.last()) Divider()
         }
     }
 }
 
 @Composable
-fun TaskItem(task: Task) {
+fun TaskItem(task: Task, onDelete: (Task) -> Unit) {
     var taskState by remember { mutableStateOf(task.isCompleted) }
     Row(
         modifier = Modifier
@@ -132,16 +143,32 @@ fun TaskItem(task: Task) {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(16.dp)
         )
-        Switch(
-            checked = taskState,
-            onCheckedChange = {
-                taskState = it
-                task.isCompleted = it
+        Row(
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { onDelete(task) }) {
+                Icon(
+                    imageVector = Icons.TwoTone.Delete,
+                    contentDescription = "Delete the task ${task.title}"
+                )
             }
-        )
+            Divider(
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(1.dp)
+                    .padding(horizontal = 8.dp)
+            )
+            Switch(
+                checked = taskState,
+                onCheckedChange = {
+                    taskState = it
+                    task.isCompleted = it
+                }
+            )
+        }
     }
 }
-
 
 @Composable
 fun AddTaskInput(onAddTask:(String) -> Unit) {
@@ -177,4 +204,9 @@ fun AddTaskInput(onAddTask:(String) -> Unit) {
             )
         }
     }
+}
+
+@Composable
+fun DeleteTask() {
+    
 }
